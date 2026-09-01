@@ -34,6 +34,9 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+let isRefreshing = false;
+let refreshPromise = null;
+
 // Response interceptor: automatically refresh access token on 401
 apiClient.interceptors.response.use(
   (response) => response,
@@ -44,26 +47,40 @@ apiClient.interceptors.response.use(
     }
 
     // Do not attempt refresh on auth endpoints or already retried requests
-    const isAuthEndpoint = originalRequest.url?.includes('/auth/token/') || originalRequest.url?.includes('/auth/register/');
+    const isAuthEndpoint =
+      originalRequest.url?.includes('/auth/token/') ||
+      originalRequest.url?.includes('/auth/register/');
 
     if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
       originalRequest._retry = true;
-      const refreshToken = typeof window !== 'undefined' ? localStorage.getItem('trip_planner_refresh_token') : null;
+      const refreshToken =
+        typeof window !== 'undefined'
+          ? localStorage.getItem('trip_planner_refresh_token')
+          : null;
 
       if (refreshToken) {
         try {
-          // Direct axios call to avoid interceptor loop
-          const { data } = await axios.post(`${baseURL}/auth/token/refresh/`, {
-            refresh: refreshToken,
-          });
-
-          const newAccessToken = data.access;
-          setAccessToken(newAccessToken);
-
-          if (data.refresh) {
-            localStorage.setItem('trip_planner_refresh_token', data.refresh);
+          if (!isRefreshing) {
+            isRefreshing = true;
+            refreshPromise = axios
+              .post(`${baseURL}/auth/token/refresh/`, {
+                refresh: refreshToken,
+              })
+              .then(({ data }) => {
+                const newAccessToken = data.access;
+                setAccessToken(newAccessToken);
+                if (data.refresh) {
+                  localStorage.setItem('trip_planner_refresh_token', data.refresh);
+                }
+                return newAccessToken;
+              })
+              .finally(() => {
+                isRefreshing = false;
+                refreshPromise = null;
+              });
           }
 
+          const newAccessToken = await refreshPromise;
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
           return apiClient(originalRequest);
         } catch (refreshError) {

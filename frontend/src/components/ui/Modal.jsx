@@ -44,6 +44,8 @@ export const Modal = ({
       />
 
       <div
+        role="dialog"
+        aria-modal="true"
         className={twMerge(
           clsx(
             'relative w-full bg-white rounded-2xl border border-sand-200 shadow-warm-lg p-6 overflow-hidden z-10 animate-in zoom-in-95 duration-150',

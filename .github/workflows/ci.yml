@@ -1,0 +1,105 @@
+name: TripPlanner Continuous Integration
+
+on:
+  push:
+    branches: [main, backend, frontend]
+  pull_request:
+    branches: [main, backend, frontend]
+
+jobs:
+  fast-checks:
+    name: Fast Layer Checks (Lint, Pytest, Contract, Vitest)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Lint Python Code (Ruff)
+        run: |
+          ruff check .
+          ruff format --check .
+
+      - name: Backend API Integration & Unit Tests (Pytest)
+        run: |
+          pytest --tb=short -q
+
+      - name: OpenAPI 3.0 Schema Contract Tests (Schemathesis)
+        run: |
+          pytest trips/tests/test_schema_contract.py
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Frontend Dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Frontend Component & Mock Tests (Vitest + MSW)
+        working-directory: frontend
+        run: npm run test
+
+  e2e-tests:
+    name: End-to-End Tests (Playwright)
+    needs: fast-checks
+    if: github.ref == 'refs/heads/main' || github.base_ref == 'main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Frontend Dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright E2E Test Suite
+        working-directory: frontend
+        run: npm run test:e2e
+
+      - name: Upload Playwright Test Report on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: e2e/playwright-report/
+          retention-days: 7

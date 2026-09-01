@@ -253,4 +253,35 @@ Implement JWT authentication, user profiles, and per-user trip/stop ownership sc
 - **Frontend Tests**: 11 Vitest test cases passing (100%) across auth flows, protected routing, trip timelines, and stop validation.
 - **Frontend Build**: Production bundle built successfully (`vite build`).
 
+---
+
+## Prompt 9 - Fullstack Multi-Tier Testing Strategy & CI Pipeline (2026-09-01)
+
+**User Request & Goal:**
+Implement a comprehensive, production-grade 4-layer testing strategy covering live API testing, OpenAPI 3.0 contract drift prevention, frontend component and MSW mock integration, isolated end-to-end browser user journeys with zero shared state, and a two-tier GitHub Actions CI pipeline.
+
+**Assessment & Strategy Realignment:**
+1. **Pyramid Shape**: Prioritize backend API integration tests as highest ROI, use Schemathesis to validate live WSGI compliance against the OpenAPI schema, keep MSW for fast frontend component feedback, and scope E2E to critical happy-path journeys.
+2. **Database CheckConstraints**: Validated and enforced `trip_end_date_gte_start_date` and `stop_departure_date_gte_arrival_date` at both DB level (ORM constraints) and API serializer level.
+3. **OpenAPI 3.0 Contract Testing**: Installed `drf-spectacular` and `schemathesis` to prevent field/type drift without manual mock maintenance.
+4. **E2E Zero-Shared-State Architecture**: Configured Playwright with dynamic randomized user generation (`createTestUser` fixture) and a dedicated SQLite database (`db.e2e.sqlite3`) auto-migrated in `globalSetup`.
+
+**Key Architectural Decisions & Implementation Details:**
+
+| Layer / Component | Technology | Implementation Details |
+|---|---|---|
+| **Layer 1: Backend API Integration** | `pytest-django` + `APIClient` | 61 tests covering auth flows, SimpleJWT token rotation, permissions scoping, CheckConstraints, and full Trips & Stops CRUD. |
+| **Layer 2: OpenAPI Contract Tests** | `drf-spectacular` + `schemathesis` | 4 tests validating live WSGI Django app endpoints against generated `/api/v1/schema/` OpenAPI specification with zero drift. |
+| **Layer 3: Frontend Component & Mock** | `vitest` + `msw` + `@testing-library/react` | 12 tests verifying login/registration, token persistence, profile updates, trip creation, date boundary validations, and timeline stops. |
+| **Layer 4: End-to-End User Journeys** | `@playwright/test` + Chromium | 3 isolated specs (`auth-flow.spec.js`, `trip-lifecycle.spec.js`, `stop-management.spec.js`) with multi-server web orchestration (Django + Vite). |
+| **Frontend Token Refresh Mutex** | Axios Interceptors (`client.js`) | Added token refresh promise deduplication to prevent race conditions during concurrent 401s with token rotation. |
+| **Modal Accessibility** | `Modal.jsx` | Added standard `role="dialog"` and `aria-modal="true"` attributes for accessibility and reliable test locators. |
+| **CI / CD Pipeline** | GitHub Actions (`ci.yml`) | Tier 1 fast checks on push (`ruff`, `pytest`, `vitest`); Tier 2 full Playwright E2E gate on PRs to `main`. |
+
+**Verification & Test Results:**
+- **Backend & Contract Tests**: 65/65 tests passing (`python -m pytest`) in 66.8s.
+- **Frontend Vitest Tests**: 12/12 tests passing (`npm run test` in `frontend/`) across 3 test files.
+- **Playwright E2E Tests**: 3/3 specs passing (`npx playwright test -c e2e/playwright.config.js`) in 31.8s.
+
+
 

@@ -30,18 +30,29 @@ ENV/
 env.bak/
 venv.bak/
 
-# Django
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-media/
-staticfiles/
-
 # Testing
 .pytest_cache/
 .coverage
 htmlcov/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# Node / Frontend
+node_modules/
+dist/
+.eslintcache
+
+# Django / SQLite
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+db.e2e.sqlite3
+db.e2e.sqlite3-journal
+media/
+staticfiles/
 
 # IDE
 .idea/
@@ -52,3 +63,4 @@ htmlcov/
 # OS
 .DS_Store
 Thumbs.db
+
