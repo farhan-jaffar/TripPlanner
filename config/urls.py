@@ -19,4 +19,3 @@ urlpatterns = [
     # Core API endpoints
     path("api/v1/", include("trips.urls")),
 ]
-

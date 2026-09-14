@@ -37,8 +37,6 @@ class TripSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
 
-
-
     def validate(self, attrs):
         start = attrs.get("start_date", getattr(self.instance, "start_date", None))
         end = attrs.get("end_date", getattr(self.instance, "end_date", None))

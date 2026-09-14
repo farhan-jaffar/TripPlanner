@@ -97,4 +97,3 @@ class Stop(TimeStampedModel):
 
     def __str__(self) -> str:
         return f"{self.name} ({self.trip.title})"
-
