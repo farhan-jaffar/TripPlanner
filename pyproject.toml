@@ -20,3 +20,5 @@ known-first-party = ["config", "trips", "agent"]
 DJANGO_SETTINGS_MODULE = "config.settings"
 python_files = ["test_*.py"]
 addopts = "--tb=short -q"
+asyncio_mode = "auto"
+
