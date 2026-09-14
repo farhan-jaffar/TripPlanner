@@ -42,7 +42,6 @@ class TestStopAPI:
         response = auth_client.get(url)
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
-
     def test_create_stop_success(self, auth_client, sample_trip):
         payload = {
             "name": "Eiffel Tower",
@@ -153,4 +152,3 @@ class TestStopAPI:
         response = auth_client.get(f"/api/v1/trips/{sample_trip.id}/stops/?search=Akihabara")
         assert response.status_code == status.HTTP_200_OK
         assert response.json()["count"] == 1
-

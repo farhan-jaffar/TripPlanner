@@ -103,7 +103,6 @@ class LogoutView(APIView):
                 status=status.HTTP_205_RESET_CONTENT,
             )
         except (TokenError, InvalidToken):
-
             return Response(
                 {"detail": "Invalid or expired token."},
                 status=status.HTTP_400_BAD_REQUEST,

@@ -63,5 +63,3 @@ class StopViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(trip=self.trip)
-
-

@@ -157,4 +157,3 @@ class TestTripAPI:
         response_large = auth_client.get("/api/v1/trips/?page_size=500")
         assert response_large.status_code == status.HTTP_200_OK
         assert len(response_large.json()["results"]) == 5
-

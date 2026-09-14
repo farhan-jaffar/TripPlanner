@@ -44,4 +44,3 @@ def sample_trip(db, user):
 @pytest.fixture
 def sample_stop(db, sample_trip):
     return StopFactory(trip=sample_trip)
-

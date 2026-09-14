@@ -157,7 +157,11 @@ class TestAuthSerializers:
         profile = user.profile
         serializer = ProfileSerializer(
             instance=profile,
-            data={"display_name": "Updated Name", "bio": "New Bio", "avatar_url": "https://example.com/pic.jpg"},
+            data={
+                "display_name": "Updated Name",
+                "bio": "New Bio",
+                "avatar_url": "https://example.com/pic.jpg",
+            },
             partial=True,
         )
         assert serializer.is_valid(), serializer.errors
@@ -166,4 +170,3 @@ class TestAuthSerializers:
         assert updated.bio == "New Bio"
         assert updated.avatar_url == "https://example.com/pic.jpg"
         assert serializer.data["username"] == user.username
-

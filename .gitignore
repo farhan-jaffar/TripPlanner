@@ -54,13 +54,20 @@ db.e2e.sqlite3-journal
 media/
 staticfiles/
 
-# IDE
+# IDE / Antigravity
 .idea/
 .vscode/
 *.swp
 *.swo
+.agents/
 
-# OS
+# MCP Server
+mcp_server/.token_cache.json
+
+# OS & Media
 .DS_Store
 Thumbs.db
+desktop.ini
+*.mp4
+
 

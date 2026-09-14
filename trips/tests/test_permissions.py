@@ -55,14 +55,11 @@ class TestPermissions:
         assert data_b["count"] == 1
         assert data_b["results"][0]["title"] == "User B Trip"
 
-    def test_user_cannot_access_other_users_trip_detail(
-        self, other_auth_client, sample_trip
-    ):
+    def test_user_cannot_access_other_users_trip_detail(self, other_auth_client, sample_trip):
         # User B attempts to access User A's trip -> returns 404 (not 403)
         # to prevent existence leakage
         response = other_auth_client.get(f"/api/v1/trips/{sample_trip.id}/")
         assert response.status_code == status.HTTP_404_NOT_FOUND
-
 
     def test_user_cannot_edit_other_users_trip(self, other_auth_client, sample_trip):
         response = other_auth_client.patch(

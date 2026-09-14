@@ -25,4 +25,3 @@ auth_patterns = [
 ]
 
 urlpatterns = auth_patterns + router.urls + trips_router.urls
-

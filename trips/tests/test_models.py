@@ -68,4 +68,3 @@ class TestProfileModel:
         profile.display_name = ""
         profile.save()
         assert str(profile) == user.username
-

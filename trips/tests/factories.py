@@ -61,4 +61,3 @@ class StopFactory(factory.django.DjangoModelFactory):
     departure_date = factory.LazyAttribute(
         lambda o: o.trip.start_date + datetime.timedelta(days=2)
     )
-

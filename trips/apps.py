@@ -7,4 +7,3 @@ class TripsConfig(AppConfig):
 
     def ready(self):
         import trips.signals  # noqa: F401
-
