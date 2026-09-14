@@ -34,3 +34,4 @@ export async function updateStop(tripId, stopId, data) {
 export async function deleteStop(tripId, stopId) {
   await apiClient.delete(`/trips/${tripId}/stops/${stopId}/`);
 }
+

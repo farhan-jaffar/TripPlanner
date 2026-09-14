@@ -20,7 +20,7 @@ export const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 15000,
+  timeout: 120000,
 });
 
 // Attach in-memory access token to outgoing requests

@@ -65,6 +65,8 @@ class StopSerializer(serializers.ModelSerializer):
             "order",
             "arrival_date",
             "departure_date",
+            "stop_type",
+            "duration_minutes",
             "created_at",
             "updated_at",
         ]

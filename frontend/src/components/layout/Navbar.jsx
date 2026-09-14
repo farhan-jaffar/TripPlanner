@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { MapPin, Plus, Compass, User, LogOut, LogIn } from 'lucide-react';
+import { MapPin, Plus, Compass, User, LogOut, LogIn, Sparkles } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { useAuth } from '../../context/AuthContext';
 
@@ -53,6 +53,25 @@ export const Navbar = () => {
                     leftIcon={<MapPin className="w-4 h-4 text-terracotta-600" />}
                   >
                     My Trips
+                  </Button>
+                </Link>
+
+                <Link to="/trips/generate">
+                  <Button
+                    variant={location.pathname === '/trips/generate' ? 'secondary' : 'ghost'}
+                    size="sm"
+                    leftIcon={<Sparkles className="w-4 h-4 text-terracotta-600" />}
+                    className="hidden sm:inline-flex"
+                  >
+                    AI Planner
+                  </Button>
+                  <Button
+                    variant={location.pathname === '/trips/generate' ? 'secondary' : 'ghost'}
+                    size="sm"
+                    className="sm:hidden p-2"
+                    aria-label="AI Planner"
+                  >
+                    <Sparkles className="w-4 h-4 text-terracotta-600" />
                   </Button>
                 </Link>
 

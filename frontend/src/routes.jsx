@@ -4,6 +4,7 @@ import { Layout } from './components/layout/Layout';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { TripsPage } from './pages/TripsPage';
 import { NewTripPage } from './pages/NewTripPage';
+import { GenerateTripPage } from './pages/GenerateTripPage';
 import { TripDetailPage } from './pages/TripDetailPage';
 import { EditTripPage } from './pages/EditTripPage';
 import { NewStopPage } from './pages/NewStopPage';
@@ -33,6 +34,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <NewTripPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'trips/generate',
+        element: (
+          <ProtectedRoute>
+            <GenerateTripPage />
           </ProtectedRoute>
         ),
       },

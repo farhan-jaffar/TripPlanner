@@ -70,6 +70,11 @@ class Stop(TimeStampedModel):
     Represents a destination, activity, or stop within a trip.
     """
 
+    STOP_TYPE_CHOICES = [
+        ("visit", "Visit"),
+        ("transfer", "Transfer"),
+    ]
+
     trip = models.ForeignKey(
         Trip,
         on_delete=models.CASCADE,
@@ -81,6 +86,12 @@ class Stop(TimeStampedModel):
     order = models.PositiveIntegerField(default=0)
     arrival_date = models.DateField(null=True, blank=True)
     departure_date = models.DateField(null=True, blank=True)
+    stop_type = models.CharField(
+        max_length=10,
+        choices=STOP_TYPE_CHOICES,
+        default="visit",
+    )
+    duration_minutes = models.PositiveIntegerField(null=True, blank=True)
 
     class Meta:
         ordering = ["order", "id"]

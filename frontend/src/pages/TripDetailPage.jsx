@@ -9,10 +9,12 @@ import {
   Trash2,
   Clock,
   Compass,
+  Sparkles,
 } from 'lucide-react';
 import { useTrip, useDeleteTrip } from '../hooks/useTrips';
 import { useStops } from '../hooks/useStops';
 import { StopTimeline } from '../features/stops/StopTimeline';
+import { AICopilotDrawer } from '../features/copilot/AICopilotDrawer';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
@@ -25,6 +27,8 @@ export const TripDetailPage = () => {
   const { tripId } = useParams();
   const navigate = useNavigate();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isCopilotOpen, setIsCopilotOpen] = useState(false);
+
 
   const { data: trip, isLoading: isTripLoading, error: tripError, refetch: refetchTrip } = useTrip(tripId);
   const {
@@ -181,15 +185,26 @@ export const TripDetailPage = () => {
             </div>
           </div>
 
-          <Link to={`/trips/${trip.id}/stops/new`}>
+          <div className="flex items-center gap-2.5 flex-wrap">
             <Button
-              variant="primary"
+              variant="outline"
               size="sm"
-              leftIcon={<Plus className="w-4 h-4" />}
+              onClick={() => setIsCopilotOpen(true)}
+              leftIcon={<Sparkles className="w-4 h-4 text-terracotta-600" />}
+              className="border-terracotta-400 bg-terracotta-50/70 text-terracotta-900 hover:bg-terracotta-100 font-semibold shadow-warm-xs"
             >
-              Add Itinerary Stop
+              AI Copilot (MCP)
             </Button>
-          </Link>
+            <Link to={`/trips/${trip.id}/stops/new`}>
+              <Button
+                variant="primary"
+                size="sm"
+                leftIcon={<Plus className="w-4 h-4" />}
+              >
+                Add Itinerary Stop
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {stopsError && (
@@ -206,6 +221,13 @@ export const TripDetailPage = () => {
           isLoading={isStopsLoading}
         />
       </div>
+
+      {/* AI Copilot MCP Drawer */}
+      <AICopilotDrawer
+        isOpen={isCopilotOpen}
+        onClose={() => setIsCopilotOpen(false)}
+        trip={trip}
+      />
 
       {/* Delete Trip Confirmation Modal */}
       <Modal
@@ -238,3 +260,4 @@ export const TripDetailPage = () => {
     </div>
   );
 };
+

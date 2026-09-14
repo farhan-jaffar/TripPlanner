@@ -35,10 +35,12 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
     "django_filters",
+    "django_countries",
     "corsheaders",
     "drf_spectacular",
     # Local apps
     "trips.apps.TripsConfig",
+    "agent.apps.AgentConfig",
 ]
 
 MIDDLEWARE = [
@@ -136,3 +138,21 @@ SPECTACULAR_SETTINGS = {
         }
     },
 }
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "trip-planner-cache",
+    }
+}
+
+# AI Itinerary Agent Settings
+GEMINI_API_KEY = env("GEMINI_API_KEY", default="")
+GEOAPIFY_API_KEY = env("GEOAPIFY_API_KEY", default="")
+GEONAMES_USERNAME = env("GEONAMES_USERNAME", default="")
+GEMINI_MODEL = env("GEMINI_MODEL", default="gemini-3.5-flash-lite")
+GEMINI_DAILY_LIMIT = env.int("GEMINI_DAILY_LIMIT", default=1000)
+GEOAPIFY_DAILY_LIMIT = env.int("GEOAPIFY_DAILY_LIMIT", default=2500)
+OPENMETEO_DAILY_LIMIT = env.int("OPENMETEO_DAILY_LIMIT", default=8000)
+GEONAMES_DAILY_LIMIT = env.int("GEONAMES_DAILY_LIMIT", default=20000)
+USER_DAILY_CREDIT_LIMIT = env.int("USER_DAILY_CREDIT_LIMIT", default=6)

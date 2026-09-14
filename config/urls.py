@@ -18,4 +18,5 @@ urlpatterns = [
     path("api/v1/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
     # Core API endpoints
     path("api/v1/", include("trips.urls")),
+    path("api/v1/itinerary/", include("agent.urls")),
 ]
