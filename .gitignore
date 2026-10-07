@@ -30,25 +30,44 @@ ENV/
 env.bak/
 venv.bak/
 
-# Django
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-media/
-staticfiles/
-
 # Testing
 .pytest_cache/
 .coverage
 htmlcov/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
 
-# IDE
+# Node / Frontend
+node_modules/
+dist/
+.eslintcache
+
+# Django / SQLite
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+db.e2e.sqlite3
+db.e2e.sqlite3-journal
+media/
+staticfiles/
+
+# IDE / Antigravity
 .idea/
 .vscode/
 *.swp
 *.swo
+.agents/
 
-# OS
+# MCP Server
+mcp_server/.token_cache.json
+
+# OS & Media
 .DS_Store
 Thumbs.db
+desktop.ini
+*.mp4
+
+

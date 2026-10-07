@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-terracotta: 210 115 76;
+    --color-sand: 250 248 245;
+  }
+
+  body {
+    @apply bg-sand-50 text-sand-900 font-sans antialiased;
+    background-color: #FAF8F5;
+  }
+
+  /* Warm focus state */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-terracotta-500/40 ring-offset-1 ring-offset-sand-50;
+  }
+}
+
+@layer components {
+  /* Warm Earthy Card */
+  .earth-card {
+    @apply bg-white border border-sand-200 rounded-2xl p-6 shadow-warm-sm transition-all duration-200;
+  }
+  .earth-card:hover {
+    @apply border-sand-300 shadow-warm-md;
+  }
+
+  /* Grounded terracotta badge */
+  .badge-terracotta {
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-terracotta-100 text-terracotta-800 border border-terracotta-200/60;
+  }
+
+  .badge-sand {
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-sand-100 text-sand-800 border border-sand-200;
+  }
+
+  .badge-sage {
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-sage-100 text-sage-700 border border-sage-200/60;
+  }
+}

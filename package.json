@@ -1,0 +1,16 @@
+{
+  "name": "trip-planner-workspace",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:e2e": "playwright test -c e2e/playwright.config.js",
+    "test:e2e:ui": "playwright test -c e2e/playwright.config.js --ui",
+    "dev": "npm --prefix frontend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "test:frontend": "npm --prefix frontend test",
+    "mcp": "python mcp_server/server.py --transport sse"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.47.0"
+  }
+}

@@ -14,16 +14,16 @@ A modern, production-grade full-stack travel planner application featuring a **D
 - **Two-Layer Validation Defense**: Serializer-level `validate()` methods as primary API guards + database-level `CheckConstraint` rules for ORM data integrity.
 - **N+1 Query Prevention**: Computes `stop_count` dynamically via database-level `annotate(stop_count=Count("stops"))`.
 - **Filtering, Search & Ordering**: Built-in `django-filter` range filters, keyword search across titles and locations, and deterministic pagination (`StandardResultsSetPagination`).
-- **OpenAPI 3.0 Documentation**: Interactive schema generation via `drf-spectacular` with JWT Bearer security schemes.
+- **OpenAPI 3.0 Documentation**: Interactive schema generation via `drf-spectacular` with JWT Bearer security schemes, Swagger UI (`/api/v1/docs/`), and Redoc (`/api/v1/redoc/`).
 
 ### Frontend (React + Vite + Tailwind CSS)
 - **Modern Earthy Aesthetic**: Styled with a curated palette featuring Burnt Sienna & Terracotta (`#C85A32`, `#D97757`), Soft Paper Beige (`#FAF8F5`, `#F4EFEA`), and Warm Sand (`#E8DFD3`, `#362C25`).
 - **Secure Token Management**: In-memory access token storage (XSS protection) paired with `localStorage` refresh token persistence for silent session rehydration.
-- **Automatic 401 Retry Interceptor**: Axios interceptor automatically catches expired tokens, requests a rotated token, and replays failed requests seamlessly.
+- **Automatic 401 Retry Interceptor & Deduplication**: Axios interceptor automatically catches expired tokens, deduplicates concurrent refresh calls, and replays failed requests seamlessly.
 - **Protected Routing**: React Router v6 guarded by `ProtectedRoute` components with session boot spinners.
 - **Optimistic Server State**: TanStack React Query v5 with automatic cache invalidation on mutations and stale-while-revalidate caching.
 - **Form & Date Validations**: Client-side schema validation via React Hook Form + Zod matching backend DRF constraints with server error mapping.
-- **Interactive Chronological Timeline**: Visual stop cards with duration badges, day tags, and edit/delete actions.
+- **Interactive Chronological Timeline**: Visual stop cards with duration badges, day tags, and edit/delete modal actions.
 
 ---
 
@@ -34,13 +34,15 @@ A modern, production-grade full-stack travel planner application featuring a **D
 | **Backend Framework** | Python 3.12, Django 5.2 LTS, Django REST Framework 3.18 |
 | **Authentication** | `djangorestframework-simplejwt` (JWT with Rotation & Blacklisting) |
 | **Routing & Filters** | `drf-nested-routers`, `django-filter`, `django-cors-headers` |
-| **API Docs & Config** | `drf-spectacular` (OpenAPI 3.0), `django-environ` (12-Factor config) |
-| **Backend Testing** | `pytest`, `pytest-django`, `pytest-cov`, `factory_boy` |
+| **API Docs & Contract** | `drf-spectacular` (OpenAPI 3.0), `schemathesis` (Schema contract tests) |
+| **Backend Testing** | `pytest`, `pytest-django`, `pytest-cov`, `factory_boy`, `schemathesis` |
 | **Frontend Framework** | React 18, Vite 5, JavaScript (JSX) |
 | **UI & Styling** | Tailwind CSS, Lucide React Icons |
 | **State & Networking** | TanStack React Query v5, Axios, React Router v6 |
 | **Forms & Validation** | React Hook Form, Zod |
 | **Frontend Testing** | Vitest, React Testing Library, Mock Service Worker (MSW) |
+| **End-to-End Testing** | Playwright (Chromium, multi-server orchestration, isolated test users) |
+| **CI / CD Pipeline** | GitHub Actions (Fast quality gate + Playwright PR gate) |
 | **Code Quality** | Ruff (Backend linter & formatter) |
 
 ---
@@ -49,9 +51,12 @@ A modern, production-grade full-stack travel planner application featuring a **D
 
 ```
 TripPlanner/
+├── .github/
+│   └── workflows/ci.yml         # Two-tier GitHub Actions CI pipeline
 ├── config/                      # Django project configuration
 │   ├── settings.py              # Single env-driven configuration
-│   ├── urls.py                  # Root URL routing & API docs endpoints
+│   ├── settings_e2e.py          # Isolated E2E SQLite test configuration
+│   ├── urls.py                  # Root URL routing & OpenAPI schema endpoints
 │   ├── exceptions.py            # Custom DRF exception handler (JSON 500s)
 │   ├── wsgi.py / asgi.py
 ├── trips/                       # Core Django application
@@ -64,17 +69,18 @@ TripPlanner/
 │   ├── signals.py               # Post-save user signal creating profiles
 │   ├── urls.py                  # Nested router definitions & auth endpoints
 │   ├── migrations/              # Schema & data migrations
-│   └── tests/                   # 61 Pytest test cases
+│   └── tests/                   # 65 Pytest test cases (61 backend + 4 contract)
 │       ├── test_auth.py         # Registration, login, refresh, logout tests
 │       ├── test_permissions.py  # Cross-user isolation & permission tests
 │       ├── test_trip_api.py     # Trip CRUD & filter integration tests
 │       ├── test_stop_api.py     # Stop CRUD & boundary validation tests
 │       ├── test_models.py       # Model & signal unit tests
-│       └── test_serializers.py  # Serializer validation tests
+│       ├── test_serializers.py  # Serializer validation tests
+│       └── test_schema_contract.py # Schemathesis OpenAPI contract compliance tests
 ├── frontend/                    # React 18 + Vite Single Page Application
 │   ├── src/
 │   │   ├── api/                 # Axios client, auth interceptor, and API endpoints
-│   │   ├── components/          # Layout (Navbar, Footer), UI kit, ProtectedRoute
+│   │   ├── components/          # Layout (Navbar, Footer), UI kit, ProtectedRoute, Modal
 │   │   ├── context/             # AuthContext (state, login, register, session boot)
 │   │   ├── features/            # Modular feature components (Auth, Trips, Stops)
 │   │   ├── hooks/               # React Query hooks (useTrips, useStops)
@@ -87,9 +93,19 @@ TripPlanner/
 │   ├── package.json
 │   ├── tailwind.config.js
 │   └── vite.config.js
+├── e2e/                         # Playwright End-to-End testing suite
+│   ├── fixtures/
+│   │   └── test-user.js         # Dynamic randomized user generator for test isolation
+│   ├── tests/
+│   │   ├── auth-flow.spec.js    # Register -> profile update -> logout -> login
+│   │   ├── trip-lifecycle.spec.js # Create -> edit -> view -> delete trip
+│   │   └── stop-management.spec.js # Multi-stop timeline ordering, edit & delete
+│   ├── global-setup.js          # SQLite DB reset & migration runner
+│   └── playwright.config.js     # Multi-server boot orchestration
 ├── manage.py
 ├── requirements.txt             # Production backend dependencies
-├── requirements-dev.txt         # Dev backend dependencies (pytest, ruff)
+├── requirements-dev.txt         # Dev backend dependencies (pytest, schemathesis, ruff)
+├── package.json                 # Workspace root scripts
 ├── pyproject.toml               # Ruff & Pytest configurations
 ├── prompts.md                   # Complete architectural decision log
 └── README.md
@@ -135,29 +151,26 @@ TripPlanner/
    python manage.py migrate
    python manage.py runserver
    ```
-   The backend API will be live at `http://127.0.0.1:8000/`.
+   The backend API will be live at `http://127.0.0.1:8000/`.  
+   Interactive API docs are available at `http://127.0.0.1:8000/api/v1/docs/`.
 
 ---
 
 ### 2. Frontend Setup
 
-1. **Navigate to the `frontend/` directory**:
+1. **Navigate to the `frontend/` directory and install dependencies**:
    ```bash
    cd frontend
-   ```
-
-2. **Install npm dependencies**:
-   ```bash
    npm install
    ```
 
-3. **Configure Frontend Environment**:
+2. **Configure Frontend Environment**:
    Copy `.env.example` to `.env` (optional, defaults to `http://localhost:8000/api/v1`):
    ```bash
    cp .env.example .env
    ```
 
-4. **Start Vite Development Server**:
+3. **Start Vite Development Server**:
    ```bash
    npm run dev
    ```
@@ -204,38 +217,72 @@ All API endpoints are prefixed with `/api/v1/`.
 
 ---
 
-## 🧪 Testing & Verification
+## 🧪 4-Layer Testing Strategy & Verification
 
-Both backend and frontend contain comprehensive test suites that run independently.
+The project implements a complete testing pyramid ensuring backend reliability, schema contract compliance, frontend UI correctness, and end-to-end user workflows.
 
-### Run Backend Tests (Pytest)
-From the project root:
+```
+       / \
+      / E2E \       Layer 4: Playwright (Isolated user journeys)
+     /-------\
+    / Front-  \     Layer 3: Vitest + React Testing Library + MSW
+   /   end     \
+  /-------------\
+ / Schema Contract\ Layer 2: Schemathesis (OpenAPI 3.0 compliance)
+/-----------------\
+|   Backend API   | Layer 1: pytest-django + APIClient + CheckConstraints
++-----------------+
+```
+
+### Layer 1 & 2: Backend API Integration & OpenAPI Contract Tests (Pytest + Schemathesis)
+Runs all 65 backend integration, serializer, model `CheckConstraint`, and OpenAPI 3.0 contract drift tests:
 ```bash
-# Run all 61 backend test cases
-pytest
+# Run all backend & contract test cases
+python -m pytest
 
-# Run tests with coverage report
+# Run with test coverage report
 pytest --cov=trips --cov-report=term-missing
 ```
 
-### Run Backend Linting & Formatting (Ruff)
+### Layer 3: Frontend Component & Mock Tests (Vitest + MSW)
+Runs 12 frontend component, hook, and form validation tests with Mock Service Worker:
+```bash
+# From the project root:
+npm run test:frontend
+
+# Or directly in frontend/:
+cd frontend && npm test
+```
+
+### Layer 4: End-to-End User Journey Tests (Playwright)
+Spins up both the Django backend (using isolated `db.e2e.sqlite3`) and Vite frontend, testing real browser interactions with randomized throwaway users:
+```bash
+# Run all 3 E2E test specs (headless Chromium)
+npm run test:e2e
+
+# Run E2E tests with Playwright interactive UI mode
+npm run test:e2e:ui
+```
+
+### Code Formatting & Linting (Ruff)
 ```bash
 ruff check .
 ruff format --check .
 ```
 
-### Run Frontend Tests (Vitest)
-From the `frontend/` directory:
-```bash
-cd frontend
-npm test
-```
-
-### Build Frontend Production Bundle
+### Frontend Production Build
 ```bash
 cd frontend
 npm run build
 ```
+
+---
+
+## 🔄 Continuous Integration (GitHub Actions)
+
+A two-tier automated CI workflow is configured in [`.github/workflows/ci.yml`](./.github/workflows/ci.yml):
+1. **Fast Quality Gate (on every push)**: Runs `ruff` linting, `pytest` (Layer 1 + Layer 2), and `vitest` (Layer 3).
+2. **E2E Gate (on Pull Requests to `main`)**: Runs the full suite of Playwright browser tests across the integrated fullstack environment.
 
 ---
 
